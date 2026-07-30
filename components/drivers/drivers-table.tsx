@@ -1,0 +1,61 @@
+import { Badge } from "@/components/ui/badge";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+
+interface DriverRow {
+  id: string;
+  full_name: string;
+  email: string;
+  phone: string | null;
+  horse_registration: string | null;
+  active: boolean;
+}
+
+export function DriversTable({ drivers }: { drivers: DriverRow[] }) {
+  if (drivers.length === 0) {
+    return (
+      <div className="rounded-xl border border-dashed border-line-strong p-8 text-center text-sm text-slate">
+        No drivers yet. Add one from the Users page.
+      </div>
+    );
+  }
+
+  return (
+    <div className="overflow-hidden rounded-xl bg-card ring-1 ring-ink/8 shadow-sm shadow-ink/[0.03]">
+      <Table>
+        <TableHeader>
+          <TableRow className="bg-canvas/60 hover:bg-canvas/60">
+            <TableHead className="h-11 px-4 text-label text-ink">Name</TableHead>
+            <TableHead className="h-11 px-4 text-label text-ink">Email</TableHead>
+            <TableHead className="h-11 px-4 text-label text-ink">Phone</TableHead>
+            <TableHead className="h-11 px-4 text-label text-ink">Vehicle</TableHead>
+            <TableHead className="h-11 px-4 text-label text-ink">Status</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {drivers.map((driver) => (
+            <TableRow key={driver.id}>
+              <TableCell className="px-4 py-3.5 text-slate">{driver.full_name}</TableCell>
+              <TableCell className="px-4 py-3.5 text-slate">{driver.email}</TableCell>
+              <TableCell className="px-4 py-3.5 font-mono text-sm text-slate">{driver.phone ?? "—"}</TableCell>
+              <TableCell className="px-4 py-3.5 font-mono text-sm text-slate">
+                {driver.horse_registration ?? "—"}
+              </TableCell>
+              <TableCell className="px-4 py-3.5">
+                <Badge
+                  variant="outline"
+                  className={
+                    driver.active
+                      ? "border-transparent bg-success-tint text-success"
+                      : "border-transparent bg-danger-tint text-danger"
+                  }
+                >
+                  {driver.active ? "Active" : "Inactive"}
+                </Badge>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}

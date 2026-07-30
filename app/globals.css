@@ -1,26 +1,142 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Aperture design tokens (personal standing design system -- see
+ * ~/.claude/CLAUDE.md). Values are defined once here and consumed via
+ * Tailwind utility classes (bg-background, text-foreground, bg-primary,
+ * border-border, etc) and the shadcn/ui component library, which reads the
+ * same --primary/--card/--border variable names. Never hardcode these hex
+ * values in a component -- change the palette here only.
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --radius: 0.5rem;
+
+  /* Neutrals */
+  --ink: #14161a;
+  --slate: #5b616e;
+  --mist: #8a8f99;
+  --canvas: #f6f7f9;
+  --surface: #ffffff;
+  --line: #e4e7ec;
+  --line-strong: #d2d6de;
+
+  /* Brand + semantic. Named "brand"/"brand-tint" rather than "accent" on
+     purpose: shadcn/ui's generated components (dropdown-menu, select, ...)
+     hardcode bg-accent/text-accent-foreground for their neutral hover-state
+     surface. Reusing "accent" for the brand blue would make every menu/select
+     hover highlight turn solid blue instead of a subtle neutral -- see
+     the shadcn semantic mapping below, where --accent is deliberately kept
+     neutral. */
+  --brand-blue: #2f5dff;
+  --brand-tint: #eaefff;
+  --success: #1a9c6d;
+  --success-tint: #e8f6f0;
+  --warning: #b5710b;
+  --warning-tint: #fbf1e1;
+  --danger: #d64545;
+  --danger-tint: #fceaea;
+
+  /* shadcn/ui semantic mapping */
+  --background: var(--canvas);
+  --foreground: var(--ink);
+  --card: var(--surface);
+  --card-foreground: var(--ink);
+  --popover: var(--surface);
+  --popover-foreground: var(--ink);
+  --primary: var(--brand-blue);
+  --primary-foreground: #ffffff;
+  --secondary: var(--canvas);
+  --secondary-foreground: var(--ink);
+  --muted: var(--canvas);
+  --muted-foreground: var(--slate);
+  /* Neutral hover-surface used internally by shadcn components (menu/select
+     item hover, etc) -- NOT the brand blue. */
+  --accent: var(--line);
+  --accent-foreground: var(--ink);
+  --destructive: var(--danger);
+  --destructive-foreground: #ffffff;
+  --border: var(--line);
+  --input: var(--line-strong);
+  --ring: var(--brand-blue);
 }
 
 @theme inline {
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-ibm-plex-mono);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --color-ink: var(--ink);
+  --color-slate: var(--slate);
+  --color-mist: var(--mist);
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+
+  --color-brand: var(--brand-blue);
+  --color-brand-tint: var(--brand-tint);
+  --color-success: var(--success);
+  --color-success-tint: var(--success-tint);
+  --color-warning: var(--warning);
+  --color-warning-tint: var(--warning-tint);
+  --color-danger: var(--danger);
+  --color-danger-tint: var(--danger-tint);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Type scale (Aperture): apply via these classes rather than one-off
+   font-size/weight combinations, so heading styles stay consistent. */
+.text-display {
+  font-size: 2.5rem;
+  line-height: 3rem;
+  font-weight: 700;
+}
+.text-h1 {
+  font-size: 2rem;
+  line-height: 2.5rem;
+  font-weight: 700;
+}
+.text-h2 {
+  font-size: 1.5rem;
+  line-height: 2rem;
+  font-weight: 600;
+}
+.text-label {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  line-height: 1rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
