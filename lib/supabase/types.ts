@@ -58,7 +58,6 @@ export interface Database {
           phone: string | null;
           drivers_license: string | null;
           pdp_number: string | null;
-          horse_registration: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -67,6 +66,24 @@ export interface Database {
           full_name: string;
         };
         Update: Partial<Database["public"]["Tables"]["drivers"]["Row"]>;
+        Relationships: [];
+      };
+      trucks: {
+        Row: {
+          id: string;
+          registration: string;
+          make_model: string | null;
+          max_capacity_tons: number | null;
+          active: boolean;
+          created_by: string | null;
+          updated_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["trucks"]["Row"]> & {
+          registration: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["trucks"]["Row"]>;
         Relationships: [];
       };
       orders: {
@@ -83,7 +100,7 @@ export interface Database {
           pickup_date: string;
           delivery_date: string;
           weight_tons: number;
-          horse_registration: string;
+          truck_id: string;
           loading_number: string | null;
           notes: string | null;
           status: OrderStatus;
@@ -103,7 +120,7 @@ export interface Database {
           pickup_date: string;
           delivery_date: string;
           weight_tons: number;
-          horse_registration: string;
+          truck_id: string;
           created_by: string;
         };
         Update: Partial<Database["public"]["Tables"]["orders"]["Row"]>;

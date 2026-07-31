@@ -4,9 +4,8 @@ import { useState } from "react";
 import { format } from "date-fns";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { OrderStatusTimeline } from "@/components/orders/order-status-timeline";
-import { OrderDocumentsList } from "@/components/orders/order-documents-list";
 import { ConfirmAssignmentButton } from "@/components/driver/confirm-assignment-button";
 import { LoadStepForm } from "@/components/driver/load-step-form";
 import { DeliverStepForm } from "@/components/driver/deliver-step-form";
@@ -27,7 +26,7 @@ interface WizardOrder {
   pickup_date: string;
   delivery_date: string;
   weight_tons: number;
-  horse_registration: string;
+  truck_registration: string;
   loading_number: string | null;
   notes: string | null;
   pickup_address: string;
@@ -41,20 +40,6 @@ interface WizardOrder {
   offload_pin: string | null;
 }
 
-interface HistoryRow {
-  id: string;
-  from_status: OrderStatus;
-  to_status: OrderStatus;
-  changed_at: string;
-}
-
-interface DocumentRow {
-  id: string;
-  type: string;
-  file_name: string;
-  signedUrl: string | null;
-}
-
 // One screen per step, Back/Next between them -- separate from the order's
 // *actual* lifecycle status (only the step matching that real status ever
 // shows a live actionable form; other steps show a locked preview or a
@@ -62,15 +47,11 @@ interface DocumentRow {
 // always allowed, since it's just viewing, not mutating anything.
 export function OrderWizard({
   order,
-  history,
-  documents,
   pickupGoogleMapsUrl,
   deliveryGoogleMapsUrl,
   routeLink,
 }: {
   order: WizardOrder;
-  history: HistoryRow[];
-  documents: DocumentRow[];
   pickupGoogleMapsUrl: string;
   deliveryGoogleMapsUrl: string;
   routeLink: string;
@@ -87,8 +68,11 @@ export function OrderWizard({
 
   return (
     <div className="space-y-6">
-      <div className="rounded-xl bg-card p-4 ring-1 ring-ink/8 shadow-sm shadow-ink/[0.03]">
-        <OrderStatusTimeline history={history} currentStatus={order.status} />
+      <div className="flex items-center justify-between rounded-xl bg-card p-4 ring-1 ring-ink/8 shadow-sm shadow-ink/[0.03]">
+        <p className="text-sm text-slate">Full status timeline moved to a dedicated page.</p>
+        <Button asChild variant="outline" size="sm">
+          <Link href="/driver/tracking">View tracking</Link>
+        </Button>
       </div>
 
       <div className="space-y-4">
@@ -114,8 +98,8 @@ export function OrderWizard({
                 <p className="font-mono text-slate">{order.weight_tons} t</p>
               </div>
               <div>
-                <p className="text-label text-mist">Horse</p>
-                <p className="font-mono text-slate">{order.horse_registration}</p>
+                <p className="text-label text-mist">Truck</p>
+                <p className="font-mono text-slate">{order.truck_registration}</p>
               </div>
               <div>
                 <p className="text-label text-mist">Loading #</p>
@@ -158,7 +142,6 @@ export function OrderWizard({
           <DeliverStepForm
             orderId={order.id}
             status={order.status}
-            offloadPin={order.offload_pin}
             deliveryAddress={order.delivery_address}
             deliveryGoogleMapsUrl={deliveryGoogleMapsUrl}
             routeLink={routeLink}
@@ -173,7 +156,12 @@ export function OrderWizard({
           <div className="space-y-4">
             <div className="space-y-3 rounded-xl bg-card ring-1 ring-ink/8 shadow-sm shadow-ink/[0.03] p-4">
               <h2 className="text-h2 text-ink">Documents</h2>
-              <OrderDocumentsList documents={documents} />
+              <p className="text-sm text-slate">
+                Every document uploaded for this order now lives on the Documents page, grouped by order number.
+              </p>
+              <Button asChild variant="outline" size="sm">
+                <Link href="/driver/documents">View documents</Link>
+              </Button>
             </div>
 
             {order.status === "delivered" && (

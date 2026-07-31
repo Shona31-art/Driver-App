@@ -54,7 +54,7 @@ export async function getRecentDrivers(limit = 5) {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("drivers")
-    .select("id, full_name, phone, horse_registration, created_at")
+    .select("id, full_name, phone, created_at")
     .order("created_at", { ascending: false })
     .limit(limit);
 

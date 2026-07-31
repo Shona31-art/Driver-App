@@ -138,11 +138,20 @@ export async function markDelivered(input: MarkDeliveredActionInput): Promise<Ac
 
   const { data: owned } = await supabase
     .from("orders")
-    .select("id, notes")
+    .select("id, notes, offload_pin")
     .eq("id", parsed.data.orderId)
     .eq("driver_id", driverId)
     .maybeSingle();
   if (!owned) return { success: false, error: NOT_YOUR_ORDER_ERROR };
+
+  // The PIN is only ever shown to the recipient (via the admin, who
+  // communicates it to the customer out-of-band) -- never to the driver's
+  // own app -- so a correct match here is real evidence the driver was
+  // actually at the delivery point with someone who received it, not just
+  // a self-reported "yes I delivered it."
+  if (owned.offload_pin && parsed.data.confirmedPin.trim() !== owned.offload_pin) {
+    return { success: false, error: "Incorrect PIN. Please confirm with the recipient and try again." };
+  }
 
   for (const meta of parsed.data.deliveryDocuments) {
     const result = await recordOrderDocument(supabase, {

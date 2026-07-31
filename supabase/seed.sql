@@ -14,6 +14,8 @@ declare
   driver_user_id uuid := gen_random_uuid();
   driver_row_id uuid;
   sample_order_id uuid;
+  truck_1_id uuid;
+  truck_2_id uuid;
 begin
   insert into auth.users (
     instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
@@ -48,26 +50,34 @@ begin
   -- public.users rows for all three are created automatically by the
   -- handle_new_auth_user trigger from raw_user_meta_data above.
 
-  insert into public.drivers (user_id, full_name, phone, drivers_license, pdp_number, horse_registration)
-  values (driver_user_id, 'Sipho Driver', '+27821234567', 'EC1234567', 'PDP998877', 'CA 123-456')
+  insert into public.drivers (user_id, full_name, phone, drivers_license, pdp_number)
+  values (driver_user_id, 'Sipho Driver', '+27821234567', 'EC1234567', 'PDP998877')
   returning id into driver_row_id;
+
+  insert into public.trucks (registration, make_model, created_by)
+  values ('CA 123-456', 'Volvo FH16', super_admin_id)
+  returning id into truck_1_id;
+
+  insert into public.trucks (registration, make_model, created_by)
+  values ('GP 987-654', 'Scania R500', super_admin_id)
+  returning id into truck_2_id;
 
   insert into public.orders (
     customer_name, pickup_address, delivery_address, pickup_date, delivery_date,
-    weight_tons, horse_registration, loading_number, notes, status, driver_id, created_by
+    weight_tons, truck_id, loading_number, notes, status, driver_id, created_by
   ) values (
     'Acme Logistics (Pty) Ltd', '12 Voortrekker Rd, Bellville, Cape Town', '45 Sandton Drive, Sandton, Johannesburg',
-    current_date + 1, current_date + 3, 24.5, 'CA 123-456', 'LN-2026-0001', 'Fragile load, handle with care',
+    current_date + 1, current_date + 3, 24.5, truck_1_id, 'LN-2026-0001', 'Fragile load, handle with care',
     'assigned', driver_row_id, super_admin_id
   )
   returning id into sample_order_id;
 
   insert into public.orders (
     customer_name, pickup_address, delivery_address, pickup_date, delivery_date,
-    weight_tons, horse_registration, loading_number, status, created_by
+    weight_tons, truck_id, loading_number, status, created_by
   ) values (
     'Karoo Grain Co-op', '8 Church St, Beaufort West', '100 Market St, Cape Town',
-    current_date + 2, current_date + 4, 30.0, 'TBD', 'LN-2026-0002', 'unassigned', super_admin_id
+    current_date + 2, current_date + 4, 30.0, truck_2_id, 'LN-2026-0002', 'unassigned', super_admin_id
   );
 
   insert into public.expenses (driver_id, order_id, type, amount, expense_date, notes, status)

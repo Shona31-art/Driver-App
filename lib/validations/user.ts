@@ -13,7 +13,6 @@ export const createUserSchema = z
     phone: z.string().max(30).optional().or(z.literal("")),
     driversLicense: z.string().max(50).optional().or(z.literal("")),
     pdpNumber: z.string().max(50).optional().or(z.literal("")),
-    horseRegistration: z.string().max(30).optional().or(z.literal("")),
   })
   .superRefine((data, ctx) => {
     if (data.role === "driver" && !data.phone) {
@@ -34,6 +33,5 @@ export const updateUserSchema = z.object({
   phone: z.string().max(30).optional().or(z.literal("")),
   driversLicense: z.string().max(50).optional().or(z.literal("")),
   pdpNumber: z.string().max(50).optional().or(z.literal("")),
-  horseRegistration: z.string().max(30).optional().or(z.literal("")),
 });
 export type UpdateUserInput = z.infer<typeof updateUserSchema>;

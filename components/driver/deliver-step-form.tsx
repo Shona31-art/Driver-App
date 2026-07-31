@@ -15,12 +15,18 @@ import type { UploadedFileMeta } from "@/lib/validations/document";
 import type { OrderStatus } from "@/lib/supabase/types";
 
 // Inlined step content (no Dialog) -- same fields/validation/actions as the
-// old MarkDeliveredDialog, plus the offload PIN / delivery address / route
-// map content that used to sit alongside it directly on the page.
+// old MarkDeliveredDialog, plus the delivery address / route map content
+// that used to sit alongside it directly on the page.
+//
+// The offload PIN is deliberately NOT shown here. It's generated when the
+// order is marked Loaded and shown to Admin/Super Admin, whose job is to
+// relay it to the customer/recipient out-of-band -- the driver only learns
+// it by asking whoever receives the delivery, then types it in below. That
+// makes a correct PIN real evidence someone at the destination cooperated,
+// rather than a number the driver could just read off their own screen.
 export function DeliverStepForm({
   orderId,
   status,
-  offloadPin,
   deliveryAddress,
   deliveryGoogleMapsUrl,
   routeLink,
@@ -31,7 +37,6 @@ export function DeliverStepForm({
 }: {
   orderId: string;
   status: OrderStatus;
-  offloadPin: string | null;
   deliveryAddress: string;
   deliveryGoogleMapsUrl: string;
   routeLink: string;
@@ -77,10 +82,15 @@ export function DeliverStepForm({
 
     const formData = new FormData(formRef.current);
     const endKmValue = Number(formData.get("endKm"));
+    const confirmedPin = formData.get("confirmedPin") as string;
     const notes = (formData.get("notes") as string) || undefined;
     const deliveryFiles = formData.getAll("deliveryDocuments").filter((f): f is File => f instanceof File && f.size > 0);
     const podFiles = formData.getAll("podDocuments").filter((f): f is File => f instanceof File && f.size > 0);
 
+    if (!confirmedPin.trim()) {
+      toast.error("Enter the offload PIN given to you by the recipient.");
+      return;
+    }
     if (deliveryFiles.length === 0) {
       toast.error("Please upload at least one delivery document.");
       return;
@@ -107,7 +117,14 @@ export function DeliverStepForm({
     }
 
     setStatusMessage(null);
-    const result = await markDelivered({ orderId, endKm: endKmValue, notes, deliveryDocuments, podDocuments });
+    const result = await markDelivered({
+      orderId,
+      endKm: endKmValue,
+      confirmedPin,
+      notes,
+      deliveryDocuments,
+      podDocuments,
+    });
     setIsSubmitting(false);
 
     if (!result.success) {
@@ -121,13 +138,6 @@ export function DeliverStepForm({
 
   return (
     <div className="space-y-4">
-      {offloadPin && (
-        <div className="rounded-xl border border-accent-tint bg-accent-tint p-4 text-center">
-          <p className="text-label text-mist">Offload PIN -- quote this at the delivery point</p>
-          <p className="font-mono text-3xl font-semibold tracking-widest text-ink">{offloadPin}</p>
-        </div>
-      )}
-
       <div className="space-y-2 rounded-xl bg-card ring-1 ring-ink/8 shadow-sm shadow-ink/[0.03] p-4">
         <p className="text-label text-mist">Delivery</p>
         <p className="text-sm text-slate">{deliveryAddress}</p>
@@ -164,8 +174,21 @@ export function DeliverStepForm({
           className="space-y-4 rounded-xl bg-card p-4 ring-1 ring-ink/8 shadow-sm shadow-ink/[0.03]"
         >
           <p className="text-sm text-slate">
-            Thank you, please offload at the delivery address above. Once done, submit your End KM and documents.
+            Thank you, please offload at the delivery address above. Ask whoever receives the load for their offload
+            PIN, then submit it below along with your End KM and documents.
           </p>
+          <div className="space-y-2">
+            <Label htmlFor="confirmedPin">Offload PIN (from the recipient)</Label>
+            <Input
+              id="confirmedPin"
+              name="confirmedPin"
+              type="text"
+              inputMode="numeric"
+              autoComplete="off"
+              maxLength={6}
+              required
+            />
+          </div>
           <div className="space-y-2">
             <Label htmlFor="endKm">End KM</Label>
             <Input id="endKm" name="endKm" type="number" step="0.1" min="0" required />

@@ -6,7 +6,6 @@ interface DriverRow {
   full_name: string;
   email: string;
   phone: string | null;
-  horse_registration: string | null;
   active: boolean;
 }
 
@@ -27,7 +26,6 @@ export function DriversTable({ drivers }: { drivers: DriverRow[] }) {
             <TableHead className="h-11 px-4 text-label text-ink">Name</TableHead>
             <TableHead className="h-11 px-4 text-label text-ink">Email</TableHead>
             <TableHead className="h-11 px-4 text-label text-ink">Phone</TableHead>
-            <TableHead className="h-11 px-4 text-label text-ink">Vehicle</TableHead>
             <TableHead className="h-11 px-4 text-label text-ink">Status</TableHead>
           </TableRow>
         </TableHeader>
@@ -37,9 +35,6 @@ export function DriversTable({ drivers }: { drivers: DriverRow[] }) {
               <TableCell className="px-4 py-3.5 text-slate">{driver.full_name}</TableCell>
               <TableCell className="px-4 py-3.5 text-slate">{driver.email}</TableCell>
               <TableCell className="px-4 py-3.5 font-mono text-sm text-slate">{driver.phone ?? "—"}</TableCell>
-              <TableCell className="px-4 py-3.5 font-mono text-sm text-slate">
-                {driver.horse_registration ?? "—"}
-              </TableCell>
               <TableCell className="px-4 py-3.5">
                 <Badge
                   variant="outline"

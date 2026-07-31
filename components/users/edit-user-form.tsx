@@ -31,7 +31,6 @@ export function EditUserForm({
       phone: user.driver?.phone ?? "",
       driversLicense: user.driver?.drivers_license ?? "",
       pdpNumber: user.driver?.pdp_number ?? "",
-      horseRegistration: user.driver?.horse_registration ?? "",
     },
   });
 
@@ -129,19 +128,6 @@ export function EditUserForm({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>PDP number</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="horseRegistration"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Horse registration</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>

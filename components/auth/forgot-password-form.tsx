@@ -28,7 +28,7 @@ export function ForgotPasswordForm() {
     // exists -- otherwise this endpoint could be used to enumerate which
     // addresses have accounts.
     await supabase.auth.resetPasswordForEmail(values.email, {
-      redirectTo: `${window.location.origin}/api/auth/callback?next=/reset-password`,
+      redirectTo: `${window.location.origin}/reset-password`,
     });
     setIsSubmitting(false);
     setSubmitted(true);

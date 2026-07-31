@@ -20,23 +20,30 @@ const STAGES: { status: OrderStatus; label: string }[] = [
 
 // Read-only visual progress tracker for the order lifecycle -- used on the
 // admin order detail page and at the top of the driver wizard. Timestamps
-// come from order_status_history (the to_status column already records
-// exactly when each stage was first reached); a stage with no matching
-// history entry hasn't happened yet.
+// come from order_status_history where available, but "reached" itself is
+// derived from the stage's position relative to the order's current status,
+// not from history alone: an order created with a driver already assigned
+// goes straight to status "assigned" on insert, which the history trigger
+// (an UPDATE-only trigger) never logs a row for -- treating that as
+// "not reached" would be wrong for an order that has clearly moved past it.
 export function OrderStatusTimeline({ history, currentStatus }: { history: HistoryRow[]; currentStatus: OrderStatus }) {
   const currentIndex = STAGES.findIndex((s) => s.status === currentStatus);
 
   return (
-    <ol className="space-y-0">
+    <ol className="flex items-start">
       {STAGES.map((stage, index) => {
         const reachedAt = history.find((h) => h.to_status === stage.status)?.changed_at;
-        const isReached = reachedAt != null;
+        const isReached = index <= currentIndex;
         const isCurrent = index === currentIndex;
+        const isFirst = index === 0;
         const isLast = index === STAGES.length - 1;
 
         return (
-          <li key={stage.status} className="flex gap-3">
-            <div className="flex flex-col items-center">
+          <li key={stage.status} className="flex flex-1 flex-col items-center">
+            <div className="flex w-full items-center">
+              <span
+                className={cn("h-px flex-1", isFirst ? "invisible" : index - 1 < currentIndex ? "bg-brand" : "bg-line")}
+              />
               <span
                 className={cn(
                   "flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold",
@@ -49,16 +56,20 @@ export function OrderStatusTimeline({ history, currentStatus }: { history: Histo
               >
                 {isReached && !isCurrent ? <Check className="size-4" /> : index + 1}
               </span>
-              {!isLast && <span className={cn("w-px flex-1 min-h-6", isReached ? "bg-brand" : "bg-line")} />}
+              <span
+                className={cn("h-px flex-1", isLast ? "invisible" : index < currentIndex ? "bg-brand" : "bg-line")}
+              />
             </div>
-            <div className="pb-6">
-              <p className={cn("text-sm font-medium", isReached || isCurrent ? "text-ink" : "text-mist")}>
+            <div className="mt-2 max-w-20 px-1 text-center sm:max-w-none">
+              <p className={cn("text-xs font-medium sm:text-sm", isReached || isCurrent ? "text-ink" : "text-mist")}>
                 {stage.label}
               </p>
               {reachedAt ? (
-                <p className="font-mono text-xs text-slate">{format(new Date(reachedAt), "dd MMM yyyy HH:mm")}</p>
+                <p className="font-mono text-[0.65rem] text-slate sm:text-xs">
+                  {format(new Date(reachedAt), "dd MMM HH:mm")}
+                </p>
               ) : (
-                <p className="text-xs text-mist">{isCurrent ? "In progress" : "Not yet reached"}</p>
+                <p className="text-[0.65rem] text-mist sm:text-xs">{isCurrent ? "In progress" : "Pending"}</p>
               )}
             </div>
           </li>

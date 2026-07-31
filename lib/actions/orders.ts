@@ -40,7 +40,7 @@ async function notifyDriverOfAssignment(orderId: string, driverId: string) {
     supabase
       .from("orders")
       .select(
-        "order_number, pickup_date, delivery_date, weight_tons, horse_registration, loading_number, pickup_address, delivery_address, pickup_lat, pickup_lng, notes",
+        "order_number, pickup_date, delivery_date, weight_tons, truck_id, loading_number, pickup_address, delivery_address, pickup_lat, pickup_lng, notes",
       )
       .eq("id", orderId)
       .single(),
@@ -49,7 +49,10 @@ async function notifyDriverOfAssignment(orderId: string, driverId: string) {
 
   if (!order || !driver) return;
 
-  const { data: driverUser } = await supabase.from("users").select("email").eq("id", driver.user_id).single();
+  const [{ data: driverUser }, { data: truck }] = await Promise.all([
+    supabase.from("users").select("email").eq("id", driver.user_id).single(),
+    supabase.from("trucks").select("registration").eq("id", order.truck_id).single(),
+  ]);
   if (!driverUser) return;
 
   await createNotification({
@@ -67,7 +70,7 @@ async function notifyDriverOfAssignment(orderId: string, driverId: string) {
     pickupDate: order.pickup_date,
     deliveryDate: order.delivery_date,
     weightTons: order.weight_tons,
-    horseRegistration: order.horse_registration,
+    truckRegistration: truck?.registration ?? "Unknown",
     loadingNumber: order.loading_number,
     pickupAddress: order.pickup_address,
     deliveryAddress: order.delivery_address,
@@ -99,7 +102,7 @@ export async function createOrder(input: CreateOrderInput): Promise<ActionResult
       pickup_date: data.pickupDate,
       delivery_date: data.deliveryDate,
       weight_tons: data.weightTons,
-      horse_registration: data.horseRegistration,
+      truck_id: data.truckId,
       loading_number: data.loadingNumber || null,
       notes: data.notes || null,
       driver_id: data.driverId || null,
@@ -145,7 +148,7 @@ export async function updateOrder(input: UpdateOrderInput): Promise<ActionResult
       pickup_date: data.pickupDate,
       delivery_date: data.deliveryDate,
       weight_tons: data.weightTons,
-      horse_registration: data.horseRegistration,
+      truck_id: data.truckId,
       loading_number: data.loadingNumber || null,
       notes: data.notes || null,
       ...coords,

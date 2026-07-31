@@ -4,7 +4,6 @@ interface RecentDriver {
   id: string;
   full_name: string;
   phone: string | null;
-  horse_registration: string | null;
 }
 
 export function RecentDriversTable({ drivers }: { drivers: RecentDriver[] }) {
@@ -23,7 +22,6 @@ export function RecentDriversTable({ drivers }: { drivers: RecentDriver[] }) {
           <TableRow className="bg-canvas/60 hover:bg-canvas/60">
             <TableHead className="h-11 px-4 text-label text-ink">Name</TableHead>
             <TableHead className="h-11 px-4 text-label text-ink">Phone</TableHead>
-            <TableHead className="h-11 px-4 text-label text-ink">Vehicle</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -31,9 +29,6 @@ export function RecentDriversTable({ drivers }: { drivers: RecentDriver[] }) {
             <TableRow key={driver.id}>
               <TableCell className="px-4 py-3.5 text-slate">{driver.full_name}</TableCell>
               <TableCell className="px-4 py-3.5 font-mono text-sm text-slate">{driver.phone ?? "—"}</TableCell>
-              <TableCell className="px-4 py-3.5 font-mono text-sm text-slate">
-                {driver.horse_registration ?? "—"}
-              </TableCell>
             </TableRow>
           ))}
         </TableBody>

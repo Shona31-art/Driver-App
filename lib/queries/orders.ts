@@ -37,7 +37,11 @@ export async function getOrderById(orderId: string) {
     console.error("getOrderById failed", error);
     return null;
   }
-  return data;
+  if (!data) return null;
+
+  const { data: truck } = await supabase.from("trucks").select("registration").eq("id", data.truck_id).maybeSingle();
+
+  return { ...data, truck_registration: truck?.registration ?? "Unknown" };
 }
 
 export async function getOrderStatusHistory(orderId: string) {

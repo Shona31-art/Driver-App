@@ -5,7 +5,7 @@ export async function getOwnDriverProfile(userId: string) {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("drivers")
-    .select("full_name, phone, drivers_license, pdp_number, horse_registration")
+    .select("full_name, phone, drivers_license, pdp_number")
     .eq("user_id", userId)
     .single();
 

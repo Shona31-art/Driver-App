@@ -7,7 +7,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { EditOrderForm } from "@/components/orders/edit-order-form";
 import type { UpdateOrderInput } from "@/lib/validations/order";
 
-export function EditOrderDialog({ order }: { order: UpdateOrderInput }) {
+export function EditOrderDialog({
+  order,
+  trucks,
+}: {
+  order: UpdateOrderInput;
+  trucks: { id: string; registration: string }[];
+}) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -20,7 +26,7 @@ export function EditOrderDialog({ order }: { order: UpdateOrderInput }) {
         <DialogHeader>
           <DialogTitle>Edit order</DialogTitle>
         </DialogHeader>
-        <EditOrderForm order={order} onSaved={() => setOpen(false)} />
+        <EditOrderForm order={order} trucks={trucks} onSaved={() => setOpen(false)} />
       </DialogContent>
     </Dialog>
   );

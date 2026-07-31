@@ -14,7 +14,7 @@ export const orderFormSchema = z
     // type="number"> string to a real number in its onChange handler
     // before it ever reaches Zod, same fix as loginSchema.rememberMe.
     weightTons: z.number().positive("Weight must be greater than 0"),
-    horseRegistration: z.string().min(1, "Horse registration is required").max(30),
+    truckId: z.string().uuid("Select a truck"),
     loadingNumber: z.string().max(50).optional().or(z.literal("")),
     notes: z.string().max(2000).optional().or(z.literal("")),
     driverId: z.string().uuid().optional().or(z.literal("")),
@@ -36,7 +36,7 @@ export const updateOrderSchema = z.object({
   pickupDate: dateString,
   deliveryDate: dateString,
   weightTons: z.number().positive("Weight must be greater than 0"),
-  horseRegistration: z.string().min(1, "Horse registration is required").max(30),
+  truckId: z.string().uuid("Select a truck"),
   loadingNumber: z.string().max(50).optional().or(z.literal("")),
   notes: z.string().max(2000).optional().or(z.literal("")),
 });
@@ -57,6 +57,7 @@ export type MarkLoadedInput = z.infer<typeof markLoadedSchema>;
 export const markDeliveredSchema = z.object({
   orderId: z.string().uuid(),
   endKm: z.coerce.number().nonnegative("End KM must be 0 or greater"),
+  confirmedPin: z.string().min(1, "Enter the offload PIN given to you by the recipient"),
   notes: z.string().max(2000).optional().or(z.literal("")),
 });
 export type MarkDeliveredInput = z.infer<typeof markDeliveredSchema>;

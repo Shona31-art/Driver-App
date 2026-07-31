@@ -3,8 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { X } from "lucide-react";
 import { requireRole } from "@/lib/auth/session";
-import { getOrderById, getOrderStatusHistory } from "@/lib/queries/orders";
-import { getOrderDocuments, getSignedDocumentUrl } from "@/lib/queries/documents";
+import { getOrderById } from "@/lib/queries/orders";
 import { buildMapLinks, buildRouteLink } from "@/lib/utils/map-links";
 import { OrderStatusBadge } from "@/components/orders/order-status-badge";
 import { OrderWizard } from "@/components/driver/order-wizard";
@@ -20,11 +19,6 @@ export default async function DriverOrderDetailPage({ params }: { params: Promis
   // mismatched id resolves to null, same as "not found".
   const order = await getOrderById(id);
   if (!order) notFound();
-
-  const [documents, history] = await Promise.all([getOrderDocuments(id), getOrderStatusHistory(id)]);
-  const documentsWithUrls = await Promise.all(
-    documents.map(async (doc) => ({ ...doc, signedUrl: await getSignedDocumentUrl(doc.file_path) })),
-  );
 
   const pickupLinks = buildMapLinks({ address: order.pickup_address, lat: order.pickup_lat, lng: order.pickup_lng });
   const deliveryLinks = buildMapLinks({
@@ -60,8 +54,6 @@ export default async function DriverOrderDetailPage({ params }: { params: Promis
 
       <OrderWizard
         order={order}
-        history={history}
-        documents={documentsWithUrls}
         pickupGoogleMapsUrl={pickupLinks.googleMaps}
         deliveryGoogleMapsUrl={deliveryLinks.googleMaps}
         routeLink={routeLink}

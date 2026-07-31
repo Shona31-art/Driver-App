@@ -6,7 +6,7 @@ export function AuthShell({ title, description, children }: { title: string; des
     <div className="flex min-h-screen items-center justify-center bg-canvas px-4 py-12">
       <div className="w-full max-w-sm">
         <div className="mb-10 flex justify-center">
-          <BrandMark imgClassName="h-24 w-auto sm:h-28" />
+          <BrandMark />
         </div>
         <div className="rounded-xl bg-card p-8 ring-1 ring-ink/8 shadow-md shadow-ink/[0.04] sm:p-10">
           <div className="mb-8 space-y-1.5 text-center">

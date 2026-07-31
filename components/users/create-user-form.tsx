@@ -26,7 +26,6 @@ export function CreateUserForm({
       phone: "",
       driversLicense: "",
       pdpNumber: "",
-      horseRegistration: "",
     },
   });
 
@@ -120,19 +119,6 @@ export function CreateUserForm({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>PDP number</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="horseRegistration"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Horse registration</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>

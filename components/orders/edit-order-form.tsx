@@ -9,15 +9,18 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { updateOrder } from "@/lib/actions/orders";
 import { updateOrderSchema, type UpdateOrderInput } from "@/lib/validations/order";
 
 export function EditOrderForm({
   order,
+  trucks,
   onSaved,
 }: {
   order: UpdateOrderInput;
+  trucks: { id: string; registration: string }[];
   onSaved: () => void;
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -140,13 +143,24 @@ export function EditOrderForm({
           />
           <FormField
             control={form.control}
-            name="horseRegistration"
+            name="truckId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Horse registration</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
+                <FormLabel>Truck</FormLabel>
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <FormControl>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select a truck" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {trucks.map((truck) => (
+                      <SelectItem key={truck.id} value={truck.id}>
+                        {truck.registration}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}

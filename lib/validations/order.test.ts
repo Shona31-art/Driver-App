@@ -8,7 +8,7 @@ const baseOrder = {
   pickupDate: "2026-08-01",
   deliveryDate: "2026-08-03",
   weightTons: 24.5,
-  horseRegistration: "CA 123-456",
+  truckId: "123e4567-e89b-12d3-a456-426614174000",
 };
 
 describe("createOrderSchema", () => {

@@ -17,7 +17,7 @@ export async function sendLoadAssignmentEmail(params: {
   pickupDate: string;
   deliveryDate: string;
   weightTons: number;
-  horseRegistration: string;
+  truckRegistration: string;
   loadingNumber: string | null;
   pickupAddress: string;
   deliveryAddress: string;
@@ -42,7 +42,7 @@ export async function sendLoadAssignmentEmail(params: {
           <li>Pickup Date: ${format(new Date(params.pickupDate), "dd MMM yyyy")}</li>
           <li>Delivery Date: ${format(new Date(params.deliveryDate), "dd MMM yyyy")}</li>
           <li>Weight: ${params.weightTons} t</li>
-          <li>Horse: ${params.horseRegistration}</li>
+          <li>Truck: ${params.truckRegistration}</li>
           <li>Loading #: ${params.loadingNumber || "N/A"}</li>
           <li>Pickup: ${params.pickupAddress}</li>
           <li>Delivery: ${params.deliveryAddress}</li>

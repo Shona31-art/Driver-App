@@ -15,7 +15,13 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { createOrder } from "@/lib/actions/orders";
 import { createOrderSchema, type CreateOrderInput } from "@/lib/validations/order";
 
-export function CreateOrderForm({ drivers }: { drivers: { id: string; full_name: string }[] }) {
+export function CreateOrderForm({
+  drivers,
+  trucks,
+}: {
+  drivers: { id: string; full_name: string }[];
+  trucks: { id: string; registration: string }[];
+}) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -28,7 +34,7 @@ export function CreateOrderForm({ drivers }: { drivers: { id: string; full_name:
       pickupDate: "",
       deliveryDate: "",
       weightTons: 0,
-      horseRegistration: "",
+      truckId: "",
       loadingNumber: "",
       notes: "",
       driverId: "",
@@ -148,13 +154,24 @@ export function CreateOrderForm({ drivers }: { drivers: { id: string; full_name:
 
           <FormField
             control={form.control}
-            name="horseRegistration"
+            name="truckId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Horse registration</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
+                <FormLabel>Truck</FormLabel>
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <FormControl>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select a truck" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {trucks.map((truck) => (
+                      <SelectItem key={truck.id} value={truck.id}>
+                        {truck.registration}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}

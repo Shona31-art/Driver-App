@@ -1,4 +1,5 @@
 import path from "path";
+import fs from "fs";
 import { test, expect, type Page } from "@playwright/test";
 
 // Exercises the full order lifecycle end to end, in the order a real user
@@ -13,6 +14,38 @@ import { test, expect, type Page } from "@playwright/test";
 // deleted), matching the seed data's own dev-only fake credentials.
 const FIXTURE = path.join(__dirname, "fixtures/test-upload.png");
 const PASSWORD = "Password123!";
+
+// Playwright runs as a plain Node process (unlike Next.js, which loads
+// .env.local automatically) -- read it directly so this test can query
+// Supabase's REST API for the offload PIN below.
+function loadEnvLocal(): Record<string, string> {
+  const envPath = path.join(__dirname, "../.env.local");
+  const env: Record<string, string> = {};
+  for (const line of fs.readFileSync(envPath, "utf8").split("\n")) {
+    const match = line.match(/^([A-Z0-9_]+)=(.*)$/);
+    if (match) env[match[1]] = match[2].trim();
+  }
+  return env;
+}
+const ENV = loadEnvLocal();
+
+// The offload PIN is a random 6-digit code the DB trigger generates the
+// moment an order is marked Loaded -- there's no way to predict it, and
+// (per the new PIN-confirmation design) it's deliberately not shown to the
+// driver in the UI, so this test reads it straight from Supabase using the
+// service role key, exactly as an admin relaying it to the customer would
+// need to see it, without needing to click through the admin UI for it.
+async function getOffloadPin(orderId: string): Promise<string> {
+  const res = await fetch(`${ENV.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/orders?id=eq.${orderId}&select=offload_pin`, {
+    headers: {
+      apikey: ENV.SUPABASE_SERVICE_ROLE_KEY,
+      Authorization: `Bearer ${ENV.SUPABASE_SERVICE_ROLE_KEY}`,
+    },
+  });
+  const rows = (await res.json()) as { offload_pin: string | null }[];
+  if (!rows[0]?.offload_pin) throw new Error(`No offload_pin found for order ${orderId}`);
+  return rows[0].offload_pin;
+}
 
 async function login(page: Page, email: string) {
   await page.goto("/login");
@@ -52,7 +85,8 @@ test("full order lifecycle: create -> assign -> confirm -> load -> deliver -> ex
     await page.getByLabel("Pickup date").fill("2026-08-01");
     await page.getByLabel("Delivery date").fill("2026-08-02");
     await page.getByLabel("Weight (tons)").fill("12");
-    await page.getByLabel("Horse registration").fill("TEST123GP");
+    await page.getByLabel("Truck").click();
+    await page.getByRole("option", { name: /CA 123-456/ }).click();
     await page.getByLabel("Assign driver").click();
     await page.getByRole("option", { name: /Sipho Driver/ }).click();
     await page.getByRole("button", { name: "Create order" }).click();
@@ -65,9 +99,6 @@ test("full order lifecycle: create -> assign -> confirm -> load -> deliver -> ex
     await row.getByRole("link").click();
     await page.waitForURL(/\/admin\/orders\/[0-9a-f-]+$/, { timeout: 90_000 });
     orderUrl = page.url();
-    // Scoped to the status badge specifically (data-slot="badge") -- the
-    // order progress tracker on this same page also renders an "Assigned"
-    // stage label, which would otherwise make this match ambiguous.
     await expect(page.locator('[data-slot="badge"]', { hasText: "Assigned" })).toBeVisible();
   });
 
@@ -92,7 +123,15 @@ test("full order lifecycle: create -> assign -> confirm -> load -> deliver -> ex
   });
 
   await test.step("Driver marks the load as Delivered", async () => {
-    // Same here -- auto-advanced to the "Deliver" step already.
+    // Same here -- auto-advanced to the "Deliver" step already. The offload
+    // PIN isn't shown in the driver's UI anymore (that's the point of the
+    // new confirmation design), so fetch it the same way an admin relaying
+    // it to the customer would need to.
+    const orderIdMatch = orderUrl.match(/[0-9a-f-]{36}$/);
+    if (!orderIdMatch) throw new Error(`Could not extract order id from ${orderUrl}`);
+    const offloadPin = await getOffloadPin(orderIdMatch[0]);
+
+    await page.getByLabel("Offload PIN (from the recipient)").fill(offloadPin);
     await page.getByLabel("End KM").fill("1200");
     await page.getByLabel("Delivery documents (PDF, JPG, or PNG)").setInputFiles(FIXTURE);
     await page.getByLabel("Completed Driver POD").setInputFiles(FIXTURE);

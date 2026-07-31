@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
-const PUBLIC_PATHS = ["/login", "/forgot-password", "/reset-password", "/api/auth/callback"];
+const PUBLIC_PATHS = ["/login", "/forgot-password", "/reset-password"];
 
 // Convenience routing only -- redirects unauthenticated users to /login and
 // keeps signed-in users out of the wrong role's section, so there's no

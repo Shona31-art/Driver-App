@@ -4,17 +4,15 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { X } from "lucide-react";
 import { requireRole } from "@/lib/auth/session";
-import { getOrderById, getOrderStatusHistory } from "@/lib/queries/orders";
-import { getOrderDocuments, getSignedDocumentUrl } from "@/lib/queries/documents";
+import { getOrderById } from "@/lib/queries/orders";
 import { getDriversList } from "@/lib/queries/drivers";
+import { getActiveTrucks } from "@/lib/queries/trucks";
 import { buildMapLinks, buildRouteLink } from "@/lib/utils/map-links";
 import { OrderStatusBadge } from "@/components/orders/order-status-badge";
 import { EditOrderDialog } from "@/components/orders/edit-order-dialog";
 import { AssignDriverDialog } from "@/components/orders/assign-driver-dialog";
 import { MarkCompletedButton } from "@/components/orders/mark-completed-button";
 import { DeleteOrderDialog } from "@/components/orders/delete-order-dialog";
-import { OrderDocumentsList } from "@/components/orders/order-documents-list";
-import { OrderStatusTimeline } from "@/components/orders/order-status-timeline";
 import { OrderRouteMap } from "@/components/orders/order-route-map-loader";
 import { Button } from "@/components/ui/button";
 
@@ -27,15 +25,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
   const order = await getOrderById(id);
   if (!order) notFound();
 
-  const [drivers, documents, history] = await Promise.all([
-    getDriversList(),
-    getOrderDocuments(id),
-    getOrderStatusHistory(id),
-  ]);
-
-  const documentsWithUrls = await Promise.all(
-    documents.map(async (doc) => ({ ...doc, signedUrl: await getSignedDocumentUrl(doc.file_path) })),
-  );
+  const [drivers, trucks] = await Promise.all([getDriversList(), getActiveTrucks()]);
 
   const activeDrivers = drivers.filter((d) => d.active);
   const currentDriver = order.driver_id ? drivers.find((d) => d.id === order.driver_id) : undefined;
@@ -82,10 +72,11 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
             pickupDate: order.pickup_date,
             deliveryDate: order.delivery_date,
             weightTons: order.weight_tons,
-            horseRegistration: order.horse_registration,
+            truckId: order.truck_id,
             loadingNumber: order.loading_number ?? "",
             notes: order.notes ?? "",
           }}
+          trucks={trucks}
         />
         <AssignDriverDialog
           orderId={order.id}
@@ -95,6 +86,12 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
         />
         {order.status === "delivered" && <MarkCompletedButton orderId={order.id} />}
         {user.role === "super_admin" && <DeleteOrderDialog orderId={order.id} orderNumber={order.order_number} />}
+        <Button asChild variant="outline" size="sm">
+          <Link href="/admin/tracking">View tracking</Link>
+        </Button>
+        <Button asChild variant="outline" size="sm">
+          <Link href="/admin/documents">View documents</Link>
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 gap-4 rounded-xl bg-card ring-1 ring-ink/8 shadow-sm shadow-ink/[0.03] p-4 sm:grid-cols-2">
@@ -103,8 +100,8 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
           <p className="text-slate">{currentDriver?.full_name ?? "Unassigned"}</p>
         </div>
         <div>
-          <p className="text-label text-mist">Horse registration</p>
-          <p className="font-mono text-slate">{order.horse_registration}</p>
+          <p className="text-label text-mist">Truck</p>
+          <p className="font-mono text-slate">{order.truck_registration}</p>
         </div>
         <div>
           <p className="text-label text-mist">Pickup date</p>
@@ -188,16 +185,6 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
           </Button>
         </div>
       )}
-
-      <div className="space-y-4">
-        <h2 className="text-h2 text-ink">Documents</h2>
-        <OrderDocumentsList documents={documentsWithUrls} />
-      </div>
-
-      <div className="space-y-4">
-        <h2 className="text-h2 text-ink">Status history</h2>
-        <OrderStatusTimeline history={history} currentStatus={order.status} />
-      </div>
     </div>
   );
 }

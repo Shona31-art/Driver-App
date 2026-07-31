@@ -8,7 +8,7 @@ export async function getDriversList() {
 
   const { data: drivers, error } = await supabase
     .from("drivers")
-    .select("id, user_id, full_name, phone, drivers_license, pdp_number, horse_registration")
+    .select("id, user_id, full_name, phone, drivers_license, pdp_number")
     .order("full_name", { ascending: true });
 
   if (error) {

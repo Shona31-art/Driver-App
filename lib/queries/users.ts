@@ -13,7 +13,6 @@ export interface UserListRow {
     phone: string | null;
     drivers_license: string | null;
     pdp_number: string | null;
-    horse_registration: string | null;
   } | null;
 }
 
@@ -25,7 +24,7 @@ export async function getUsersList(): Promise<UserListRow[]> {
 
   const [usersResult, driversResult] = await Promise.all([
     supabase.from("users").select("id, email, full_name, role, active, created_at").order("created_at", { ascending: false }),
-    supabase.from("drivers").select("user_id, phone, drivers_license, pdp_number, horse_registration"),
+    supabase.from("drivers").select("user_id, phone, drivers_license, pdp_number"),
   ]);
 
   if (usersResult.error) {

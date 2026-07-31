@@ -27,7 +27,7 @@ export async function createUser(input: CreateUserInput): Promise<ActionResult> 
   const admin = createAdminClient();
   const { data: inviteData, error: inviteError } = await admin.auth.admin.inviteUserByEmail(data.email, {
     data: { full_name: data.fullName, role: data.role },
-    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/api/auth/callback?next=/reset-password`,
+    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/reset-password`,
   });
 
   if (inviteError || !inviteData.user) {
@@ -45,7 +45,6 @@ export async function createUser(input: CreateUserInput): Promise<ActionResult> 
       phone: data.phone || null,
       drivers_license: data.driversLicense || null,
       pdp_number: data.pdpNumber || null,
-      horse_registration: data.horseRegistration || null,
     });
 
     if (driverError) {
@@ -99,7 +98,6 @@ export async function updateUser(input: UpdateUserInput): Promise<ActionResult> 
         phone: data.phone || null,
         drivers_license: data.driversLicense || null,
         pdp_number: data.pdpNumber || null,
-        horse_registration: data.horseRegistration || null,
       },
       { onConflict: "user_id" },
     );
@@ -198,7 +196,7 @@ export async function resetUserPassword(id: string): Promise<ActionResult> {
   }
 
   const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/api/auth/callback?next=/reset-password`,
+    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/reset-password`,
   });
 
   if (error) {
