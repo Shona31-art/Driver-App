@@ -12,10 +12,10 @@ const STATUS_CONFIG: Record<OrderStatus, { label: string; className: string }> =
   completed: { label: "Completed", className: "border-transparent bg-success-tint text-success" },
 };
 
-export function OrderStatusBadge({ status }: { status: OrderStatus }) {
+export function OrderStatusBadge({ status, className }: { status: OrderStatus; className?: string }) {
   const config = STATUS_CONFIG[status];
   return (
-    <Badge variant="outline" className={cn("font-mono text-[0.6875rem] tracking-wide uppercase", config.className)}>
+    <Badge variant="outline" className={cn("font-mono text-[0.6875rem] tracking-wide uppercase", config.className, className)}>
       {config.label}
     </Badge>
   );

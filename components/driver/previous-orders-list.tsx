@@ -26,14 +26,14 @@ export function PreviousOrdersList({ orders }: { orders: OrderRow[] }) {
         <li key={order.id}>
           <Link
             href={`/driver/orders/${order.id}`}
-            className="flex items-center justify-between rounded-xl bg-card p-5 ring-1 ring-ink/8 shadow-sm shadow-ink/[0.03] transition-shadow hover:shadow-md hover:shadow-ink/[0.06]"
+            className="flex items-center justify-between gap-3 rounded-xl bg-card p-5 ring-1 ring-ink/8 shadow-sm shadow-ink/[0.03] transition-shadow hover:shadow-md hover:shadow-ink/[0.06]"
           >
-            <div>
+            <div className="min-w-0">
               <p className="font-mono text-sm text-slate">{order.order_number}</p>
-              <p className="text-ink">{order.customer_name}</p>
+              <p className="truncate text-ink">{order.customer_name}</p>
               <p className="font-mono text-xs text-mist">{format(new Date(order.delivery_date), "dd MMM yyyy")}</p>
             </div>
-            <OrderStatusBadge status={order.status} />
+            <OrderStatusBadge status={order.status} className="shrink-0" />
           </Link>
         </li>
       ))}

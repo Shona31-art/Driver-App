@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { confirmAssignment } from "@/lib/actions/driver-orders";
 
-export function ConfirmAssignmentButton({ orderId }: { orderId: string }) {
+export function ConfirmAssignmentButton({ orderId, onSuccess }: { orderId: string; onSuccess?: () => void }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function handleConfirm() {
@@ -20,6 +20,7 @@ export function ConfirmAssignmentButton({ orderId }: { orderId: string }) {
       return;
     }
     toast.success("Assignment confirmed");
+    onSuccess?.();
   }
 
   return (

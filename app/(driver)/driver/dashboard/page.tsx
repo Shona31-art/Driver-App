@@ -39,12 +39,12 @@ export default async function DriverDashboardPage() {
             href={`/driver/orders/${currentLoad.id}`}
             className="block rounded-xl bg-card p-5 ring-1 ring-ink/8 shadow-sm shadow-ink/[0.03] transition-shadow hover:shadow-md hover:shadow-ink/[0.06]"
           >
-            <div className="flex items-center justify-between">
-              <div>
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
                 <p className="font-mono text-sm text-slate">{currentLoad.order_number}</p>
-                <p className="text-ink">{currentLoad.customer_name}</p>
+                <p className="truncate text-ink">{currentLoad.customer_name}</p>
               </div>
-              <OrderStatusBadge status={currentLoad.status} />
+              <OrderStatusBadge status={currentLoad.status} className="shrink-0" />
             </div>
             <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
               <div>

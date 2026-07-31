@@ -23,13 +23,13 @@ export default async function DriverOrdersPage() {
         {currentOrder ? (
           <Link
             href={`/driver/orders/${currentOrder.id}`}
-            className="flex items-center justify-between rounded-xl bg-card p-5 ring-1 ring-ink/8 shadow-sm shadow-ink/[0.03] transition-shadow hover:shadow-md hover:shadow-ink/[0.06]"
+            className="flex items-center justify-between gap-3 rounded-xl bg-card p-5 ring-1 ring-ink/8 shadow-sm shadow-ink/[0.03] transition-shadow hover:shadow-md hover:shadow-ink/[0.06]"
           >
-            <div>
+            <div className="min-w-0">
               <p className="font-mono text-sm text-slate">{currentOrder.order_number}</p>
-              <p className="text-ink">{currentOrder.customer_name}</p>
+              <p className="truncate text-ink">{currentOrder.customer_name}</p>
             </div>
-            <OrderStatusBadge status={currentOrder.status} />
+            <OrderStatusBadge status={currentOrder.status} className="shrink-0" />
           </Link>
         ) : (
           <div className="rounded-xl border border-dashed border-line-strong p-8 text-center text-sm text-slate">

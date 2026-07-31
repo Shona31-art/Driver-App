@@ -196,7 +196,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
 
       <div className="space-y-4">
         <h2 className="text-h2 text-ink">Status history</h2>
-        <OrderStatusTimeline history={history} />
+        <OrderStatusTimeline history={history} currentStatus={order.status} />
       </div>
     </div>
   );
